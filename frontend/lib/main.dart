@@ -8,7 +8,7 @@ void main() async {
   // ignore: await_only_futures
   await config.initConfig();
 
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 
