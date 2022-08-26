@@ -3,7 +3,7 @@ import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:flutter/services.dart' show ByteData, rootBundle;
+import 'package:flutter/services.dart' show rootBundle;
 
 class MapDisplay extends StatefulWidget {
   const MapDisplay({Key? key}) : super(key: key);
@@ -23,7 +23,8 @@ class MapDisplayState extends State<MapDisplay> {
 
   static const CameraPosition _kSchool = CameraPosition(
       target: LatLng(37.334465, -121.8812),
-      zoom: 15.5);
+      zoom: 15.5
+  );
 
   @override
   Widget build(BuildContext context) {
