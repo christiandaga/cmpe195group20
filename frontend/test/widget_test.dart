@@ -12,6 +12,6 @@ import 'package:frontend/app.dart';
 void main() {
   testWidgets('test test', (WidgetTester tester) async {
     // Build our app and trigger a frame.
-    await tester.pumpWidget(MyApp());
+    await tester.pumpWidget(const MyApp());
   });
 }

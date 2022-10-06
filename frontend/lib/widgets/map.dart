@@ -1,11 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:math';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_directions_api/google_directions_api.dart' as api;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 
@@ -21,6 +21,7 @@ class MapDisplay extends StatefulWidget {
 class MapDisplayState extends State<MapDisplay> {
 
   final Completer<GoogleMapController> _controller = Completer();
+  final _directionsService = api.DirectionsService();
   Set<Marker>? _markers;
   final Set<Marker> _destMarkers = {};
 
@@ -35,7 +36,6 @@ class MapDisplayState extends State<MapDisplay> {
 
   String _startAddress = '';
   String _destinationAddress = '';
-  String? _placeDistance;
 
   late PolylinePoints _polylinePoints;
   final Map<PolylineId, Polyline> _polylines = {};
@@ -116,7 +116,7 @@ class MapDisplayState extends State<MapDisplay> {
     );
   }
 
-  Future<void> _fetchData() async {
+  _fetchData() async {
     Set<Marker> newMarkers = {};
     var data = await rootBundle.loadString('assets/sampleData.json');
     var icon = await rootBundle.load('assets/images/phone.png');
@@ -131,12 +131,12 @@ class MapDisplayState extends State<MapDisplay> {
     setState(() => _markers = newMarkers);
   }
 
-  Future<void> _goToTheSchool() async {
+  _goToTheSchool() async {
     final GoogleMapController controller = await _controller.future;
     controller.animateCamera(CameraUpdate.newCameraPosition(_kSchool));
   }
 
-  Future<void> _getCurrentLocation() async {
+  _getCurrentLocation() async {
     final GoogleMapController controller = await _controller.future;
     await Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.high)
       .then((Position position) async {
@@ -178,7 +178,7 @@ class MapDisplayState extends State<MapDisplay> {
   }
 
   // Method for calculating the distance between two places
-  Future<bool> _calculateDistance() async {
+  Future<String> _calculateDistance() async {
     try {
       final GoogleMapController controller = await _controller.future;
       // Retrieving placemarks from addresses
@@ -273,40 +273,25 @@ class MapDisplayState extends State<MapDisplay> {
       await _createPolylines(startLatitude, startLongitude, destinationLatitude,
           destinationLongitude);
 
-      double totalDistance = 0.0;
+      final request = api.DirectionsRequest(
+        origin: _startAddress,
+        destination: _destinationAddress,
+        travelMode: api.TravelMode.walking
+      );
 
-      // Calculating the total distance by adding the distance
-      // between small segments
-      for (int i = 0; i < _polylineCoordinates.length - 1; i++) {
-        totalDistance += _coordinateDistance(
-          _polylineCoordinates[i].latitude,
-          _polylineCoordinates[i].longitude,
-          _polylineCoordinates[i + 1].latitude,
-          _polylineCoordinates[i + 1].longitude,
-        );
-      }
-
-      setState(() {
-        _placeDistance = totalDistance.toStringAsFixed(2);
-        logger.i('DISTANCE: $_placeDistance km');
+      String eta = '';
+      await _directionsService.route(request, (response, status) {
+        if (status == api.DirectionsStatus.ok) {
+          eta = response.routes?[0].legs?[0].duration?.text ?? '';
+          logger.i('Eta: '+eta);
+        }
       });
 
-      return true;
+      return eta;
     } catch (e) {
       logger.e(e);
     }
-    return false;
-  }
-
-  // Formula for calculating distance between two coordinates
-  // https://stackoverflow.com/a/54138876/11910277
-  double _coordinateDistance(lat1, lon1, lat2, lon2) {
-    var p = 0.017453292519943295;
-    var c = cos;
-    var a = 0.5 -
-        c((lat2 - lat1) * p) / 2 +
-        c(lat1 * p) * c(lat2 * p) * (1 - c((lon2 - lon1) * p)) / 2;
-    return 12742 * asin(sqrt(a));
+    return '';
   }
 
   // Create the polylines for showing the route between two places
@@ -318,10 +303,10 @@ class MapDisplayState extends State<MapDisplay> {
   ) async {
     _polylinePoints = PolylinePoints();
     PolylineResult result = await _polylinePoints.getRouteBetweenCoordinates(
-      'AIzaSyBalXW7bdb97Rc8vI8Nd2FkKQxcYqqZLVQ', // Google Maps API Key
+      config.apiKey, // Google Maps API Key
       PointLatLng(startLatitude, startLongitude),
       PointLatLng(destinationLatitude, destinationLongitude),
-      travelMode: TravelMode.transit,
+      travelMode: TravelMode.walking,
     );
 
     if (result.points.isNotEmpty) {
@@ -348,9 +333,14 @@ class MapDisplayState extends State<MapDisplay> {
       if (_destMarkers.isNotEmpty) _destMarkers.clear();
       if (_polylines.isNotEmpty) _polylines.clear();
       if (_polylineCoordinates.isNotEmpty) _polylineCoordinates.clear();
-      _placeDistance = null;
     });
 
-    await _calculateDistance();
+    final eta = await _calculateDistance();
+    if (eta.isNotEmpty) {
+      ScaffoldMessenger.of(context)
+        .showSnackBar(
+          SnackBar(content: Text(eta))
+        );
+    }
   }
 }
