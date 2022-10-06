@@ -4,8 +4,10 @@ import 'package:permission_handler/permission_handler.dart';
 class _Config {
   initConfig() async {
     // init stuff
-    await Permission.location.request();
-    logger.i(Permission.location);
+    if (await Permission.location.request().isGranted) {
+      await Permission.locationAlways.request();
+    }
+    logger.w(Permission.location.serviceStatus);
   }
 }
 final _Config config = _Config();
