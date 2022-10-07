@@ -1,12 +1,19 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:google_directions_api/google_directions_api.dart';
 import 'package:logger/logger.dart';
 import 'package:permission_handler/permission_handler.dart';
+
+import './firebase_options.dart';
 
 class _Config {
   // TODO: secrets
   String get apiKey => 'AIzaSyBalXW7bdb97Rc8vI8Nd2FkKQxcYqqZLVQ';
 
   initConfig() async {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform
+    );
+
     // init stuff
     if (await Permission.location.request().isGranted) {
       await Permission.locationAlways.request();

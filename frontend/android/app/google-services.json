@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "901483938215",
+    "project_id": "safehome-352402",
+    "storage_bucket": "safehome-352402.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:901483938215:android:3f69f4b66c998029fd3682",
+        "android_client_info": {
+          "package_name": "com.safehome.frontend"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "901483938215-6vcmmat81sjvc5k8l0gh6u58398k6amm.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC7IOw7g8Wu1YctfjoAwLX1-DYfs1EdHAg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "901483938215-6vcmmat81sjvc5k8l0gh6u58398k6amm.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
