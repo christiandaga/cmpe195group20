@@ -1,33 +1,33 @@
 {
   "project_info": {
-    "project_number": "901483938215",
-    "project_id": "safehome-352402",
-    "storage_bucket": "safehome-352402.appspot.com"
+    "project_number": "900680184742",
+    "project_id": "safestreets-a32d6",
+    "storage_bucket": "safestreets-a32d6.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:901483938215:android:3f69f4b66c998029fd3682",
+        "mobilesdk_app_id": "1:900680184742:android:014a6d0eda74cbd83e5567",
         "android_client_info": {
           "package_name": "com.safehome.frontend"
         }
       },
       "oauth_client": [
         {
-          "client_id": "901483938215-6vcmmat81sjvc5k8l0gh6u58398k6amm.apps.googleusercontent.com",
+          "client_id": "900680184742-a2oubvgskfa9mmd152kfpjckmv3rn80n.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyC7IOw7g8Wu1YctfjoAwLX1-DYfs1EdHAg"
+          "current_key": "AIzaSyDchpbEfDWrpxAv9A_po_Oyy2E9Wg8o7RM"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "901483938215-6vcmmat81sjvc5k8l0gh6u58398k6amm.apps.googleusercontent.com",
+              "client_id": "900680184742-a2oubvgskfa9mmd152kfpjckmv3rn80n.apps.googleusercontent.com",
               "client_type": 3
             }
           ]

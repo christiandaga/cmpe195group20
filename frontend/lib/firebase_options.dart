@@ -47,30 +47,30 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: 'AIzaSyBalXW7bdb97Rc8vI8Nd2FkKQxcYqqZLVQ',
-    appId: '1:901483938215:web:6e571c7e728f0649fd3682',
-    messagingSenderId: '901483938215',
-    projectId: 'safehome-352402',
-    authDomain: 'safehome-352402.firebaseapp.com',
-    storageBucket: 'safehome-352402.appspot.com',
-    measurementId: 'G-S7VZNE3LBT',
+    apiKey: 'AIzaSyA1Pv9DDuTieGdZyZK2xpYx0daDC_g8_D4',
+    appId: '1:900680184742:web:554b1514195a8ae83e5567',
+    messagingSenderId: '900680184742',
+    projectId: 'safestreets-a32d6',
+    authDomain: 'safestreets-a32d6.firebaseapp.com',
+    storageBucket: 'safestreets-a32d6.appspot.com',
+    measurementId: 'G-NDETRS0V17',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyC7IOw7g8Wu1YctfjoAwLX1-DYfs1EdHAg',
-    appId: '1:901483938215:android:3f69f4b66c998029fd3682',
-    messagingSenderId: '901483938215',
-    projectId: 'safehome-352402',
-    storageBucket: 'safehome-352402.appspot.com',
+    apiKey: 'AIzaSyDchpbEfDWrpxAv9A_po_Oyy2E9Wg8o7RM',
+    appId: '1:900680184742:android:014a6d0eda74cbd83e5567',
+    messagingSenderId: '900680184742',
+    projectId: 'safestreets-a32d6',
+    storageBucket: 'safestreets-a32d6.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyB_fjxS7l3OheSmtnk8c0H9jYe8FCK2e8c',
-    appId: '1:901483938215:ios:11c03ed78aca405dfd3682',
-    messagingSenderId: '901483938215',
-    projectId: 'safehome-352402',
-    storageBucket: 'safehome-352402.appspot.com',
-    iosClientId: '901483938215-vmnhk9g6puu3e8s2i5u84aofj39lmqk0.apps.googleusercontent.com',
+    apiKey: 'AIzaSyCP3UnLfrlKyN6GC1xqAhtzsV-ngoCnou4',
+    appId: '1:900680184742:ios:71ffbea89a1ef4493e5567',
+    messagingSenderId: '900680184742',
+    projectId: 'safestreets-a32d6',
+    storageBucket: 'safestreets-a32d6.appspot.com',
+    iosClientId: '900680184742-09trdb3802a5l41e1mbhirfbvcbod98v.apps.googleusercontent.com',
     iosBundleId: 'com.example.frontend',
   );
 }
