@@ -12,7 +12,7 @@ import 'package:flutter/services.dart' show rootBundle;
 import '../config.dart';
 
 class MapDisplay extends StatefulWidget {
-  const MapDisplay({Key? key}) : super(key: key);
+  const MapDisplay({super.key});
 
   @override
   State<MapDisplay> createState() => MapDisplayState();
@@ -63,8 +63,7 @@ class MapDisplayState extends State<MapDisplay> {
             GoogleMap(
               mapType: MapType.normal,
               myLocationEnabled: true,
-              myLocationButtonEnabled: true,
-              zoomGesturesEnabled: true,
+              myLocationButtonEnabled: false,
               initialCameraPosition: _kSchool,
               markers: {...(_markers ?? {}), ..._destMarkers},
               polylines: Set<Polyline>.of(_polylines.values),
@@ -108,8 +107,8 @@ class MapDisplayState extends State<MapDisplay> {
           ]
         ),
         floatingActionButton: FloatingActionButton.small(
-          onPressed: _goToTheSchool,
-          child: const Icon(Icons.school),
+          onPressed: _getCurrentLocation,
+          child: const Icon(Icons.my_location),
         ),
         floatingActionButtonLocation: FloatingActionButtonLocation.startFloat,
       )
@@ -121,11 +120,11 @@ class MapDisplayState extends State<MapDisplay> {
     var data = await rootBundle.loadString('assets/sampleData.json');
     var icon = await rootBundle.load('assets/images/phone.png');
     var dec = json.decode(data);
-    dec.forEach((k,v) {
+    dec["bluelight"].asMap().forEach((i, v) {
       newMarkers.add(Marker(
-        markerId: MarkerId(k),
-        position: LatLng(v['lat']!, v['lng']!),
-        icon: BitmapDescriptor.fromBytes(Uint8List.view(icon.buffer))
+        markerId: MarkerId(i.toString()),
+        position: LatLng(v[0], v[1]),
+        icon: BitmapDescriptor.fromBytes(Uint8List.view(icon.buffer), size: const Size(30, 30))
       ));
     });
     setState(() => _markers = newMarkers);
@@ -318,11 +317,12 @@ class MapDisplayState extends State<MapDisplay> {
     PolylineId id = const PolylineId('poly');
     Polyline polyline = Polyline(
       polylineId: id,
-      color: Colors.red,
+      color: Colors.lightBlue,
       points: _polylineCoordinates,
       width: 3,
     );
     _polylines[id] = polyline;
+    setState(() {});
   }
 
   _route() async {

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:frontend/screens/settings.dart';
 import 'package:get/get.dart';
 
 import './screens/home.dart' show HomePage;
@@ -16,7 +17,8 @@ class MyApp extends StatelessWidget {
       ),
       home: const HomePage(),
       getPages: [
-        GetPage(name: '/home', page: () => const HomePage())
+        GetPage(name: '/home', page: () => const HomePage()),
+        GetPage(name: '/settings', page: () => const SettingsPage())
       ],
     );
   }

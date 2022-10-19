@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/layout.dart';
 import '../widgets/map.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({Key? key}) : super(key: key);
+  const HomePage({super.key});
 
-  final String title = 'SafeHome';
+  final String title = 'SafeStreets';
 
   @override
   State<HomePage> createState() => _HomePageState();
@@ -14,12 +15,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.title),
-        centerTitle: true,
-      ),
-      body: const MapDisplay()
+    return const Layout(
+      body: MapDisplay()
     );
   }
 }
