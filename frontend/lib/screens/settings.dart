@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:frontend/widgets/contacts_form.dart';
 
+import '../widgets/contacts_form.dart';
 import '../widgets/layout.dart';
 
 class SettingsPage extends StatefulWidget {

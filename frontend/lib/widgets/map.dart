@@ -5,11 +5,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:google_directions_api/google_directions_api.dart' as api;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config.dart';
+import '../state/contact_controller.dart';
 
 class MapDisplay extends StatefulWidget {
   const MapDisplay({super.key});
@@ -37,6 +40,9 @@ class MapDisplayState extends State<MapDisplay> {
   String _startAddress = '';
   String _destinationAddress = '';
 
+  String _eta = '';
+  final _contact = Get.put(ContactController());
+
   late PolylinePoints _polylinePoints;
   final Map<PolylineId, Polyline> _polylines = {};
   final List<LatLng> _polylineCoordinates = [];
@@ -45,10 +51,19 @@ class MapDisplayState extends State<MapDisplay> {
       target: LatLng(37.334465, -121.8812),
       zoom: 15.5
   );
+  
+  init() async {
+    if (_contact.number.value.isEmpty) {
+      final _prefs = await SharedPreferences.getInstance();
+      _contact.name(_prefs.getString('contact_name') ?? '');
+      _contact.number(_prefs.getString('contact_number') ?? '');
+    }
+  }
 
   @override
   void initState() {
     super.initState();
+    init();
     _getCurrentLocation();
     if (_markers == null) _fetchData();
   }
@@ -75,31 +90,87 @@ class MapDisplayState extends State<MapDisplay> {
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Container(
-                  decoration: const BoxDecoration(
-                    color: Colors.white70,
+                  decoration: BoxDecoration(
+                    color: const Color.fromARGB(220, 255, 255, 255),
+                    boxShadow: [BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 2,
+                      offset: const Offset(0, 1)
+                    )],
+                    borderRadius: const BorderRadius.all(Radius.circular(10))
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      TextField(
-                        focusNode: _startAddressFocusNode,
-                        controller: _startAddressController,
-                        onChanged: (String value) => setState(() {
-                          _startAddressController.text = _currentAddress;
-                          _startAddress = value;
-                        }),
-                      ),
-                      TextField(
-                        focusNode: _destinationAddressFocusNode,
-                        onChanged: (String value) => setState(() {
-                          _destinationAddress = value;
-                        }),
-                      ),
-                      ElevatedButton(
-                        onPressed: _route,
-                        child: const Text('Route')
-                      )
-                    ],
+                  margin: const EdgeInsets.all(8.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        TextField(
+                          focusNode: _startAddressFocusNode,
+                          controller: _startAddressController,
+                          onChanged: (String value) => setState(() {
+                            _startAddressController.text = _currentAddress;
+                            _startAddress = value;
+                          }),
+                        ),
+                        TextField(
+                          focusNode: _destinationAddressFocusNode,
+                          onChanged: (String value) => setState(() {
+                            _destinationAddress = value;
+                          }),
+                        ),
+                        ElevatedButton(
+                          onPressed: _route,
+                          child: const Text('Route')
+                        )
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            if (_eta.isNotEmpty) SafeArea(
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    border: Border.all(color: Colors.blueAccent),
+                    borderRadius: const BorderRadius.all(Radius.circular(10)),
+                    boxShadow: [BoxShadow(
+                      color: Colors.grey.withOpacity(0.5),
+                      spreadRadius: 1,
+                      blurRadius: 2,
+                      offset: const Offset(0, 1)
+                    )],
+                  ),
+                  margin: const EdgeInsets.all(20.0),
+                  child: Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: <Widget>[
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            const Icon(Icons.directions_walk),
+                            Text(_eta),
+                          ],
+                        ),
+                        Obx(() => Text(
+                          'Emergency Contact: ' + (_contact.name.value.isEmpty?'None':_contact.name.value),
+                          style: const TextStyle(
+                            fontSize: 10,
+                            color: Colors.grey
+                          ),
+                        )),
+                        ElevatedButton(
+                          onPressed: _trip,
+                          child: const Text('Start Trip')
+                        )
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -322,7 +393,6 @@ class MapDisplayState extends State<MapDisplay> {
       width: 3,
     );
     _polylines[id] = polyline;
-    setState(() {});
   }
 
   _route() async {
@@ -337,10 +407,16 @@ class MapDisplayState extends State<MapDisplay> {
 
     final eta = await _calculateDistance();
     if (eta.isNotEmpty) {
-      ScaffoldMessenger.of(context)
-        .showSnackBar(
-          SnackBar(content: Text(eta))
-        );
+      setState(() {
+        _eta = eta;
+      });
     }
+  }
+
+  _trip() async {
+    ScaffoldMessenger.of(context)
+      .showSnackBar(
+        const SnackBar(content: Text('Trip Started'))
+      );
   }
 }

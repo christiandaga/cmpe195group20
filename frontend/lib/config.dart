@@ -19,7 +19,7 @@ class _Config {
       await Permission.locationAlways.request();
     }
     final _status = await Permission.location.serviceStatus;
-    logger.w(_status);
+    logger.d(_status);
 
     DirectionsService.init(apiKey);
   }

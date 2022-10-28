@@ -1,4 +1,4 @@
-package com.example.frontend
+package com.safestreets.mobile
 
 import io.flutter.embedding.android.FlutterActivity
 
