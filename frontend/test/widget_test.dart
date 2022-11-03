@@ -7,7 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:safe_streets/app.dart';
+import 'package:safestreets/app.dart';
 
 void main() {
   testWidgets('test test', (WidgetTester tester) async {

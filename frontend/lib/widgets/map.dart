@@ -12,7 +12,8 @@ import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
 
 import '../config.dart';
-import '../state/contact_controller.dart';
+import '../utils/contact_controller.dart';
+import '../utils/api.dart';
 
 class MapDisplay extends StatefulWidget {
   const MapDisplay({super.key});
@@ -26,6 +27,7 @@ class MapDisplayState extends State<MapDisplay> {
   final Completer<GoogleMapController> _controller = Completer();
   final _directionsService = api.DirectionsService();
   Set<Marker>? _markers;
+  Set<Circle>? _circles;
   final Set<Marker> _destMarkers = {};
 
   late Position _currentPosition;
@@ -81,6 +83,7 @@ class MapDisplayState extends State<MapDisplay> {
               myLocationButtonEnabled: false,
               initialCameraPosition: _kSchool,
               markers: {...(_markers ?? {}), ..._destMarkers},
+              circles: _circles ?? {},
               polylines: Set<Polyline>.of(_polylines.values),
               onMapCreated: (GoogleMapController controller) {
                 if (!_controller.isCompleted) _controller.complete(controller);
@@ -198,7 +201,22 @@ class MapDisplayState extends State<MapDisplay> {
         icon: BitmapDescriptor.fromBytes(Uint8List.view(icon.buffer), size: const Size(30, 30))
       ));
     });
-    setState(() => _markers = newMarkers);
+
+    Set<Circle> newCircles = {};
+    var crimeData = await Api.getCrimeData();
+    crimeData.asMap().forEach((i, v) {
+      newCircles.add(Circle(
+        circleId: CircleId(i.toString()),
+        center: LatLng(v.latitude, v.longitude),
+        radius: 75,
+        fillColor: const Color.fromARGB(95, 244, 67, 54),
+        strokeWidth: 1
+      ));
+    });
+    setState(() {
+      _markers = newMarkers;
+      _circles = newCircles;
+    });
   }
 
   _goToTheSchool() async {
@@ -359,6 +377,10 @@ class MapDisplayState extends State<MapDisplay> {
 
       return eta;
     } catch (e) {
+      ScaffoldMessenger.of(context)
+        .showSnackBar(
+          const SnackBar(content: Text('Address Not Found'), backgroundColor: Colors.red,)
+        );
       logger.e(e);
     }
     return '';
@@ -403,6 +425,7 @@ class MapDisplayState extends State<MapDisplay> {
       if (_destMarkers.isNotEmpty) _destMarkers.clear();
       if (_polylines.isNotEmpty) _polylines.clear();
       if (_polylineCoordinates.isNotEmpty) _polylineCoordinates.clear();
+      if (_eta.isNotEmpty) _eta = '';
     });
 
     final eta = await _calculateDistance();

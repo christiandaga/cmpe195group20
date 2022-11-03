@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../state/contact_controller.dart';
+import '../utils/contact_controller.dart';
 
 class ContactsForm extends StatefulWidget {
   const ContactsForm({super.key});
