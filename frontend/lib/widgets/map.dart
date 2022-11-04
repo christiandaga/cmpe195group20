@@ -213,6 +213,7 @@ class MapDisplayState extends State<MapDisplay> {
         strokeWidth: 1
       ));
     });
+    
     setState(() {
       _markers = newMarkers;
       _circles = newCircles;

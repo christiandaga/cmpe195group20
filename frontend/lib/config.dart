@@ -8,6 +8,7 @@ import './firebase_options.dart';
 class _Config {
   // TODO: secrets
   String get apiKey => 'AIzaSyBalXW7bdb97Rc8vI8Nd2FkKQxcYqqZLVQ';
+  String get crimeApiKey => '5c7yGnp23fEA4F2b9CpnTsOCs';
 
   initConfig() async {
     await Firebase.initializeApp(

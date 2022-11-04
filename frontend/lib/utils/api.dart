@@ -6,13 +6,12 @@ import '../config.dart';
 
 class Api {
   static Future<List<Location>> getCrimeData() async {
-    DateTime now = DateTime.now();
-    DateTime date = DateTime(now.year, now.month, now.day);
+    DateTime date = DateTime.now().subtract(const Duration(days: 1));
     var url = Uri.https('data.sccgov.org', '/resource/n9u6-aijz.json', {
       r'$where': "incident_datetime>'${date.toIso8601String()}'"
     });
     var response = await http.get(url, headers: {
-      'X-App-Token': '5c7yGnp23fEA4F2b9CpnTsOCs'
+      'X-App-Token': config.crimeApiKey
     });
     List<dynamic> data = jsonDecode(response.body);
     List<Location> locations = [];
