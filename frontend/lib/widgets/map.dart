@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:convert';
 import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
@@ -10,10 +9,11 @@ import 'package:google_directions_api/google_directions_api.dart' as api;
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:flutter/services.dart' show rootBundle;
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:intl/intl.dart';
 import '../config.dart';
 import '../utils/contact_controller.dart';
 import '../utils/api.dart';
+import '../models/trip.dart';
 
 class MapDisplay extends StatefulWidget {
   const MapDisplay({super.key});
@@ -42,7 +42,8 @@ class MapDisplayState extends State<MapDisplay> {
   String _startAddress = '';
   String _destinationAddress = '';
 
-  String _eta = '';
+  api.Leg? _leg;
+  Trip? _currentTrip;
   final _contact = Get.put(ContactController());
 
   late PolylinePoints _polylinePoints;
@@ -89,7 +90,7 @@ class MapDisplayState extends State<MapDisplay> {
                 if (!_controller.isCompleted) _controller.complete(controller);
               },
             ),
-            SafeArea(
+            if (_currentTrip==null) SafeArea(
               child: Align(
                 alignment: Alignment.topCenter,
                 child: Container(
@@ -133,7 +134,7 @@ class MapDisplayState extends State<MapDisplay> {
                 ),
               ),
             ),
-            if (_eta.isNotEmpty) SafeArea(
+            if (_leg != null) SafeArea(
               child: Align(
                 alignment: Alignment.bottomCenter,
                 child: Container(
@@ -153,31 +154,52 @@ class MapDisplayState extends State<MapDisplay> {
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            const Icon(Icons.directions_walk),
-                            Text(_eta),
-                          ],
-                        ),
-                        Obx(() => Text(
-                          'Emergency Contact: ' + (_contact.name.value.isEmpty?'None':_contact.name.value),
-                          style: const TextStyle(
-                            fontSize: 10,
-                            color: Colors.grey
+                      children: _currentTrip!=null?
+                        <Widget>[
+                          const SizedBox(height: 10,),
+                          Text(
+                            _leg!.endAddress!,
+                            style: const TextStyle(
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
-                        )),
-                        ElevatedButton(
-                          onPressed: _trip,
-                          child: const Text('Start Trip')
-                        )
-                      ],
+                          const SizedBox(height: 8,),
+                          Text('ETA: ${DateFormat.jm().format(DateTime.now().add(Duration(seconds: _leg!.duration!.value!.toInt())))}'),
+                          const SizedBox(height: 10,),
+                          ElevatedButton(
+                            onPressed: _cancel, 
+                            child: const Text("I've Arrived"),
+                          ),
+                          TextButton(
+                            onPressed: _cancel, 
+                            child: const Text('Cancel'),
+                          )
+                        ]
+                        :<Widget>[
+                          Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              const Icon(Icons.directions_walk),
+                              Text(_leg?.duration?.text ?? ''),
+                            ],
+                          ),
+                          Obx(() => Text(
+                            'Emergency Contact: ' + (_contact.name.value.isEmpty?'None':_contact.name.value),
+                            style: const TextStyle(
+                              fontSize: 10,
+                              color: Colors.grey
+                            ),
+                          )),
+                          ElevatedButton(
+                            onPressed: _trip,
+                            child: const Text('Start Trip')
+                          )
+                        ],
                     ),
                   ),
                 ),
               ),
-            )
+            ),
           ]
         ),
         floatingActionButton: FloatingActionButton.small(
@@ -191,13 +213,12 @@ class MapDisplayState extends State<MapDisplay> {
 
   _fetchData() async {
     Set<Marker> newMarkers = {};
-    var data = await rootBundle.loadString('assets/sampleData.json');
+    var data = await Api.getEmergencyPhoneData();
     var icon = await rootBundle.load('assets/images/phone.png');
-    var dec = json.decode(data);
-    dec["bluelight"].asMap().forEach((i, v) {
+    data.asMap().forEach((i, v) {
       newMarkers.add(Marker(
         markerId: MarkerId(i.toString()),
-        position: LatLng(v[0], v[1]),
+        position: v,
         icon: BitmapDescriptor.fromBytes(Uint8List.view(icon.buffer), size: const Size(30, 30))
       ));
     });
@@ -207,7 +228,7 @@ class MapDisplayState extends State<MapDisplay> {
     crimeData.asMap().forEach((i, v) {
       newCircles.add(Circle(
         circleId: CircleId(i.toString()),
-        center: LatLng(v.latitude, v.longitude),
+        center: v,
         radius: 75,
         fillColor: const Color.fromARGB(95, 244, 67, 54),
         strokeWidth: 1
@@ -267,7 +288,7 @@ class MapDisplayState extends State<MapDisplay> {
   }
 
   // Method for calculating the distance between two places
-  Future<String> _calculateDistance() async {
+  _calculateDistance() async {
     try {
       final GoogleMapController controller = await _controller.future;
       // Retrieving placemarks from addresses
@@ -368,15 +389,16 @@ class MapDisplayState extends State<MapDisplay> {
         travelMode: api.TravelMode.walking
       );
 
-      String eta = '';
       await _directionsService.route(request, (response, status) {
         if (status == api.DirectionsStatus.ok) {
-          eta = response.routes?[0].legs?[0].duration?.text ?? '';
-          logger.i('Eta: '+eta);
+          api.Leg? leg = response.routes?[0].legs?[0];
+          logger.i('Eta: ${leg?.duration?.text}');
+          setState(() {
+            _leg = leg;
+          });
         }
       });
 
-      return eta;
     } catch (e) {
       ScaffoldMessenger.of(context)
         .showSnackBar(
@@ -384,7 +406,6 @@ class MapDisplayState extends State<MapDisplay> {
         );
       logger.e(e);
     }
-    return '';
   }
 
   // Create the polylines for showing the route between two places
@@ -426,21 +447,40 @@ class MapDisplayState extends State<MapDisplay> {
       if (_destMarkers.isNotEmpty) _destMarkers.clear();
       if (_polylines.isNotEmpty) _polylines.clear();
       if (_polylineCoordinates.isNotEmpty) _polylineCoordinates.clear();
-      if (_eta.isNotEmpty) _eta = '';
+      if (_leg != null) _leg = null;
+      if (_currentTrip != null) _currentTrip = null;
     });
 
-    final eta = await _calculateDistance();
-    if (eta.isNotEmpty) {
-      setState(() {
-        _eta = eta;
-      });
-    }
+    await _calculateDistance();
   }
 
   _trip() async {
-    ScaffoldMessenger.of(context)
-      .showSnackBar(
-        const SnackBar(content: Text('Trip Started'))
+    if (_leg != null) {
+      var _tmp = Trip(
+        _leg!, 
+        _contact 
       );
+      await _tmp.commit();
+      setState(() {
+        _currentTrip = _tmp;
+      });
+      // ScaffoldMessenger.of(context)
+      //   .showSnackBar(
+      //     const SnackBar(content: Text('Trip Started'))
+      //   );
+    }
+  }
+
+  _cancel() async {
+    if (_currentTrip != null) {
+      await _currentTrip!.complete();
+      setState(() {
+        if (_destMarkers.isNotEmpty) _destMarkers.clear();
+        if (_polylines.isNotEmpty) _polylines.clear();
+        if (_polylineCoordinates.isNotEmpty) _polylineCoordinates.clear();
+        if (_leg != null) _leg = null;
+        if (_currentTrip != null) _currentTrip = null;
+      });
+    }
   }
 }

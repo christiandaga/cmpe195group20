@@ -29,6 +29,49 @@
             {
               "client_id": "900680184742-a2oubvgskfa9mmd152kfpjckmv3rn80n.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "900680184742-09trdb3802a5l41e1mbhirfbvcbod98v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.frontend"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:900680184742:android:3035af4ef60944163e5567",
+        "android_client_info": {
+          "package_name": "com.safestreets.mobile"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "900680184742-a2oubvgskfa9mmd152kfpjckmv3rn80n.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDchpbEfDWrpxAv9A_po_Oyy2E9Wg8o7RM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "900680184742-a2oubvgskfa9mmd152kfpjckmv3rn80n.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "900680184742-09trdb3802a5l41e1mbhirfbvcbod98v.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.frontend"
+              }
             }
           ]
         }
