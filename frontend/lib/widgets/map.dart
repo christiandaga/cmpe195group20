@@ -60,6 +60,7 @@ class MapDisplayState extends State<MapDisplay> {
       final _prefs = await SharedPreferences.getInstance();
       _contact.name(_prefs.getString('contact_name') ?? '');
       _contact.number(_prefs.getString('contact_number') ?? '');
+      _contact.user(_prefs.getString('user_name') ?? '');
     }
   }
 
@@ -149,9 +150,9 @@ class MapDisplayState extends State<MapDisplay> {
                       offset: const Offset(0, 1)
                     )],
                   ),
-                  margin: const EdgeInsets.all(20.0),
+                  margin: const EdgeInsets.fromLTRB(50, 0, 50, 20.0),
                   child: Padding(
-                    padding: const EdgeInsets.all(8.0),
+                    padding: const EdgeInsets.fromLTRB(8,8,8,0.0),
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       children: _currentTrip!=null?

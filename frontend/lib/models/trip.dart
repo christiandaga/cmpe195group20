@@ -6,6 +6,10 @@ import '../utils/contact_controller.dart';
 
 class Trip {
   static const collectionName = 'trip';
+  static const pending = 0;
+  static const inProgress = 1;
+  static const completed = 2;
+  static const canceled = 3;
 
   late final Timestamp? eta;
   late final Map<String, GeoPoint>? route;
@@ -25,7 +29,8 @@ class Trip {
     };
     this.contact = {
       "name": contact.name.value,
-      "number": contact.number.value
+      "number": contact.number.value,
+      "user": contact.user.value
     };
     lastLocation = GeoPoint(leg.startLocation!.latitude, leg.startLocation!.longitude);
   }
@@ -37,7 +42,8 @@ class Trip {
       "route": route,
       "contact": contact,
       "last_location": lastLocation,
-      "created": Timestamp.now()
+      "created": Timestamp.now(),
+      "status": inProgress
     }).then(
       (doc) {
         _id = doc.id;
@@ -58,6 +64,22 @@ class Trip {
         (doc) => true,
         onError: (e) {
           logger.e('Failed to delete trip', e);
+          return false;
+        }
+      );
+  }
+
+  Future<bool> updateLocation(GeoPoint loc) async {
+    var db = FirebaseFirestore.instance;
+    lastLocation = loc;
+    return await db.collection(collectionName).doc(_id)
+      .update({
+        "last_location": loc
+      })
+      .then(
+        (_) => true,
+        onError: (e) {
+          logger.e('Failed to update location', e);
           return false;
         }
       );
