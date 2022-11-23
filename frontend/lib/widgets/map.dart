@@ -214,9 +214,9 @@ class MapDisplayState extends State<MapDisplay> {
 
   _fetchData() async {
     Set<Marker> newMarkers = {};
-    var data = await Api.getEmergencyPhoneData();
+    var phoneData = await Api.getEmergencyPhoneData();
     var icon = await rootBundle.load('assets/images/phone.png');
-    data.asMap().forEach((i, v) {
+    phoneData.asMap().forEach((i, v) {
       newMarkers.add(Marker(
         markerId: MarkerId(i.toString()),
         position: v,
@@ -233,6 +233,17 @@ class MapDisplayState extends State<MapDisplay> {
         radius: 75,
         fillColor: const Color.fromARGB(95, 244, 67, 54),
         strokeWidth: 1
+      ));
+    });
+
+    var lightData = await Api.getStreetLightData();
+    lightData.asMap().forEach((i, v) {
+      newCircles.add(Circle(
+        circleId: CircleId(i.toString()),
+        center: v,
+        radius: 6,
+        fillColor: const Color.fromARGB(95, 255, 232, 130),
+        strokeWidth: 0
       ));
     });
     
@@ -288,18 +299,13 @@ class MapDisplayState extends State<MapDisplay> {
     }
   }
 
-  // Method for calculating the distance between two places
   _calculateDistance() async {
     try {
       final GoogleMapController controller = await _controller.future;
-      // Retrieving placemarks from addresses
       List<Location> startPlacemark = await locationFromAddress(_startAddress);
       List<Location> destinationPlacemark =
           await locationFromAddress(_destinationAddress);
 
-      // Use the retrieved coordinates of the current position,
-      // instead of the address if the start position is user's
-      // current position, as it results in better accuracy.
       double startLatitude = _startAddress == _currentAddress
           ? _currentPosition.latitude
           : startPlacemark[0].latitude;
@@ -315,7 +321,6 @@ class MapDisplayState extends State<MapDisplay> {
       String destinationCoordinatesString =
           '($destinationLatitude, $destinationLongitude)';
 
-      // Start Location Marker
       Marker startMarker = Marker(
         markerId: MarkerId(startCoordinatesString),
         position: LatLng(startLatitude, startLongitude),
@@ -326,7 +331,6 @@ class MapDisplayState extends State<MapDisplay> {
         icon: BitmapDescriptor.defaultMarker,
       );
 
-      // Destination Location Marker
       Marker destinationMarker = Marker(
         markerId: MarkerId(destinationCoordinatesString),
         position: LatLng(destinationLatitude, destinationLongitude),
@@ -337,7 +341,6 @@ class MapDisplayState extends State<MapDisplay> {
         icon: BitmapDescriptor.defaultMarker,
       );
 
-      // Adding the markers to the list
       _destMarkers.add(startMarker);
       _destMarkers.add(destinationMarker);
 
@@ -348,8 +351,6 @@ class MapDisplayState extends State<MapDisplay> {
         'DESTINATION COORDINATES: ($destinationLatitude, $destinationLongitude)',
       );
 
-      // Calculating to check that the position relative
-      // to the frame, and pan & zoom the camera accordingly.
       double miny = (startLatitude <= destinationLatitude)
           ? startLatitude
           : destinationLatitude;
@@ -369,8 +370,6 @@ class MapDisplayState extends State<MapDisplay> {
       double northEastLatitude = maxy;
       double northEastLongitude = maxx;
 
-      // Accommodate the two locations within the
-      // camera view of the map
       controller.animateCamera(
         CameraUpdate.newLatLngBounds(
           LatLngBounds(
@@ -409,7 +408,6 @@ class MapDisplayState extends State<MapDisplay> {
     }
   }
 
-  // Create the polylines for showing the route between two places
   _createPolylines(
     double startLatitude,
     double startLongitude,
@@ -457,18 +455,21 @@ class MapDisplayState extends State<MapDisplay> {
 
   _trip() async {
     if (_leg != null) {
-      var _tmp = Trip(
-        _leg!, 
-        _contact 
-      );
-      await _tmp.commit();
-      setState(() {
-        _currentTrip = _tmp;
-      });
-      // ScaffoldMessenger.of(context)
-      //   .showSnackBar(
-      //     const SnackBar(content: Text('Trip Started'))
-      //   );
+      if (_contact.checkEmpty()) {
+        ScaffoldMessenger.of(context)
+          .showSnackBar(
+            const SnackBar(content: Text('Emergency contact not set'), backgroundColor: Colors.orange,)
+          );
+      } else {
+        var _tmp = Trip(
+          _leg!, 
+          _contact,
+        );
+        await _tmp.commit();
+        setState(() {
+          _currentTrip = _tmp;
+        });
+      }
     }
   }
 
@@ -482,6 +483,7 @@ class MapDisplayState extends State<MapDisplay> {
         if (_leg != null) _leg = null;
         if (_currentTrip != null) _currentTrip = null;
       });
+      _getCurrentLocation();
     }
   }
 }

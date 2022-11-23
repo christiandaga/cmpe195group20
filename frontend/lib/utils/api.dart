@@ -10,7 +10,7 @@ class Api {
   static Future<List<LatLng>> getCrimeData() async {
     List<LatLng> locations = [];
     try {
-      DateTime date = DateTime.now().subtract(const Duration(days: 1));
+      DateTime date = DateTime.now().subtract(const Duration(days: 3));
       var url = Uri.https('data.sccgov.org', '/resource/n9u6-aijz.json', {
         r'$where': "incident_datetime>'${date.toIso8601String()}'"
       });
@@ -49,7 +49,22 @@ class Api {
       logger.e('Failed to get emergency phone data', e);
     }
     
-    logger.i(locations);
+    // logger.i(locations);
+    return locations;
+  }
+
+  static Future<List<LatLng>> getStreetLightData() async {
+    List<LatLng> locations = [];
+    try {
+      var data = await rootBundle.loadString('assets/streetLightData.json');
+      var dec = json.decode(data);
+      dec.forEach((v) =>
+        locations.add(LatLng(v['LATITUDE'], v['LONGITUDE'])));
+    } catch (e) {
+      logger.e('Failed to get street pole data', e);
+    }
+    
+    // logger.i(locations);
     return locations;
   }
 }

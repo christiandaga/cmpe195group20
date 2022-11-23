@@ -10,9 +10,10 @@ class Trip {
   static const inProgress = 1;
   static const completed = 2;
   static const canceled = 3;
+  static const alarm = 4;
 
   late final Timestamp? eta;
-  late final Map<String, GeoPoint>? route;
+  late final Map<String, dynamic>? route;
   late final Map<String, String>? contact;
   late final GeoPoint? lastLocation;
 
@@ -25,7 +26,8 @@ class Trip {
     eta = Timestamp.fromDate(DateTime.now().add(Duration(seconds: leg.duration!.value!.toInt())));
     route = {
       "start": GeoPoint(leg.startLocation!.latitude, leg.startLocation!.longitude),
-      "destination": GeoPoint(leg.endLocation!.latitude, leg.endLocation!.longitude)
+      "destination": GeoPoint(leg.endLocation!.latitude, leg.endLocation!.longitude),
+      "address": leg.endAddress
     };
     this.contact = {
       "name": contact.name.value,

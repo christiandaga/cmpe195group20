@@ -15,6 +15,7 @@ class SettingsPageState extends State<SettingsPage> {
   Widget build(BuildContext context) {
     return const Layout(
       title: 'Settings',
+      settings: true,
       body: Padding(
         padding: EdgeInsets.all(10),
         child: ContactsForm(),
