@@ -1,5 +1,7 @@
-To deploy function, navigate to messaging directory and run the following
+To deploy function, run the following from the backend directory
 ```
+npm install
+cd messaging/functions
 npm install
 firebase deploy --only functions
 ```
