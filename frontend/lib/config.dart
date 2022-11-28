@@ -16,9 +16,7 @@ class _Config {
     );
 
     // init stuff
-    if (await Permission.location.request().isGranted) {
-      await Permission.locationAlways.request();
-    }
+    await Permission.location.request();
     final _status = await Permission.location.serviceStatus;
     logger.d(_status);
 
