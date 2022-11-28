@@ -115,7 +115,6 @@ class MapDisplayState extends State<MapDisplay> {
                           focusNode: _startAddressFocusNode,
                           controller: _startAddressController,
                           onChanged: (String value) => setState(() {
-                            _startAddressController.text = _currentAddress;
                             _startAddress = value;
                           }),
                         ),
@@ -213,44 +212,53 @@ class MapDisplayState extends State<MapDisplay> {
   }
 
   _fetchData() async {
-    Set<Marker> newMarkers = {};
-    var phoneData = await Api.getEmergencyPhoneData();
-    var icon = await rootBundle.load('assets/images/phone.png');
-    phoneData.asMap().forEach((i, v) {
-      newMarkers.add(Marker(
-        markerId: MarkerId(i.toString()),
-        position: v,
-        icon: BitmapDescriptor.fromBytes(Uint8List.view(icon.buffer), size: const Size(30, 30))
-      ));
-    });
-
-    Set<Circle> newCircles = {};
-    var crimeData = await Api.getCrimeData();
-    crimeData.asMap().forEach((i, v) {
-      newCircles.add(Circle(
-        circleId: CircleId(i.toString()),
-        center: v,
-        radius: 75,
-        fillColor: const Color.fromARGB(95, 244, 67, 54),
-        strokeWidth: 1
-      ));
-    });
-
-    var lightData = await Api.getStreetLightData();
-    lightData.asMap().forEach((i, v) {
-      newCircles.add(Circle(
-        circleId: CircleId(i.toString()),
-        center: v,
-        radius: 6,
-        fillColor: const Color.fromARGB(95, 255, 232, 130),
-        strokeWidth: 0
-      ));
+    Api.getEmergencyPhoneData().then((phoneData) async {
+      Set<Marker> newMarkers = {};
+      var icon = await rootBundle.load('assets/images/phone.png');
+      phoneData.asMap().forEach((i, v) {
+        newMarkers.add(Marker(
+          markerId: MarkerId(i.toString()),
+          position: v,
+          icon: BitmapDescriptor.fromBytes(Uint8List.view(icon.buffer), size: const Size(30, 30))
+        ));
+      });
+      setState(() {
+        _markers = newMarkers;
+      });
     });
     
-    setState(() {
-      _markers = newMarkers;
-      _circles = newCircles;
+    Api.getCrimeData().then((crimeData) {
+      Set<Circle> crimeCircles = _circles ?? {};
+      for (var v in crimeData) {
+        crimeCircles.add(Circle(
+          circleId: CircleId(crimeCircles.length.toString()),
+          center: v,
+          radius: 75,
+          fillColor: const Color.fromARGB(95, 244, 67, 54),
+          strokeWidth: 1
+        ));
+      }
+      setState(() {
+        _circles = crimeCircles;
+      });
     });
+    
+    Api.getStreetLightData().then((lightData) {
+      Set<Circle> lightCircles = _circles ?? {};
+      for (var v in lightData) {
+        lightCircles.add(Circle(
+          circleId: CircleId(lightCircles.length.toString()),
+          center: v,
+          radius: 6,
+          fillColor: const Color.fromARGB(95, 255, 232, 130),
+          strokeWidth: 0
+        ));
+      }
+      setState(() {
+        _circles = lightCircles;
+      });
+    });
+    
   }
 
   _goToTheSchool() async {

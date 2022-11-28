@@ -20,10 +20,11 @@ class Api {
       List<dynamic> data = jsonDecode(response.body);
       
       for (var value in data) {
-        List<String> spl = value['address_1'].split(' ');
-        spl.removeWhere((String element) => element.toLowerCase() == 'block');
-        String address = spl.join(' ');
+        var address = "";
         try {
+          List<String> spl = value['address_1'].split(' ');
+          spl.removeWhere((String element) => element.toLowerCase() == 'block');
+          address = spl.join(' ');
           var location = await locationFromAddress(address);
           locations.add(LatLng(location.first.latitude, location.first.longitude));
         } catch (e) {
@@ -56,10 +57,10 @@ class Api {
   static Future<List<LatLng>> getStreetLightData() async {
     List<LatLng> locations = [];
     try {
-      var data = await rootBundle.loadString('assets/streetLightData.json');
+      var data = await rootBundle.loadString('assets/sampleData.json');
       var dec = json.decode(data);
-      dec.forEach((v) =>
-        locations.add(LatLng(v['LATITUDE'], v['LONGITUDE'])));
+      dec["streetlight"].forEach((v) =>
+        locations.add(LatLng(v[0], v[1])));
     } catch (e) {
       logger.e('Failed to get street pole data', e);
     }
