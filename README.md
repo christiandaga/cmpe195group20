@@ -24,7 +24,7 @@ ___
 npm install
 ```
 
-- Navigate to `messaging/functions`, install depndencies
+- Navigate to `messaging/functions`, install dependencies
 
 ```bash
 cd messaging/functions
