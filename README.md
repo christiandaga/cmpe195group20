@@ -8,6 +8,17 @@ ___
 
 ## Firebase Backend
 
+### Structure
+
+```text
+.backend
+|   firebase.json # Firebase Config
+|   
+\---functions # Source Code
+        index.js # checkTrips Function
+        package.json # Dependencies
+```
+
 ### Requirements
 
 - Install [Node](https://nodejs.org/en/)
@@ -39,6 +50,48 @@ firebase deploy --only functions
 
 ## Frontend Mobile App
 
+### Structure
+
+```text
+.frontend
+|   pubspec.yaml # Dependencies
+|       
++---android # Android build files
+|               
++---assets
+|   |   sampleData.json # Static streetlight and bluelight data
+|   |   streetLightData.json
+|   |   
+|   +---icon
+|   |       icon.png
+|   |       
+|   \---images
+|           phone.png
+|                                   
++---ios # IOS build files
+|               
++---lib # Source Code
+|   |   app.dart # Main App
+|   |   config.dart
+|   |   main.dart # Entry Point
+|   |   
+|   +---models
+|   |       trip.dart
+|   |       
+|   +---screens
+|   |       home.dart
+|   |       settings.dart
+|   |       
+|   +---utils
+|   |       api.dart
+|   |       contact_controller.dart
+|   |       
+|   \---widgets
+|           contacts_form.dart
+|           layout.dart
+|           map.dart
+```
+
 ### Requirements
 
 - Setup Flutter. <https://docs.flutter.dev/get-started/install>
@@ -49,7 +102,7 @@ firebase deploy --only functions
 flutter pub get
 ```
 
-- Setup Firebase for Flutter. <https://firebase.google.com/docs/flutter/setup?platform=android>
+- Configure Firebase for Flutter. Follow Steps 1 and 2 from <https://firebase.google.com/docs/flutter/setup?platform=android>
 
 ### To Run
 
