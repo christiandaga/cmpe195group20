@@ -4,6 +4,8 @@
 
 Download [SafeStreets.apk](https://github.com/christiandaga/cmpe195group20/releases/latest/download/SafeStreets.apk) and install to android device of choice. To setup your own project, follow steps below.
 
+Demo: <https://youtu.be/SQFB_uXaB_Y>
+
 ___
 
 ## Firebase Backend
